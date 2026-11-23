@@ -169,7 +169,12 @@ function sigs(){
   if(!T)return noT();
   const rows=T.techniques.flatMap(t=>t.signals.map(s=>({t:t.name,...s})));
   return `<div class="box"><h2>Today’s signals</h2><p class="s">Signals for the close of <b>${dt(T.as_of)}</b>. The paper trade enters at the next day’s open. Stop and quantity here are estimates from the close; the real ones use the actual open. Quantity is sized so a stop-loss costs about ${T.config.risk_pct}% of capital.</p>
-  ${rows.length?`<div class="sc"><table><thead><tr><th>Technique</th><th>Stock</th><th>Close (₹)</th><th>Stop-loss (₹)</th><th>Quantity</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${esc(s.t)}</td><td>${esc(s.symbol)}</td><td>${num(s.ref_close,2)}</td><td class="dn">${num(s.stop,2)}</td><td>${num(s.qty,0)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="mu">No technique produced a signal at this close. That is normal on many days.</p>`}</div>`;
+  ${rows.length?`<div class="sc"><table><thead><tr><th>Technique</th><th>Stock</th><th>Close (₹)</th><th>Stop-loss (₹)</th><th>Quantity</th></tr></thead><tbody>${rows.map(s=>`<tr><td>${esc(s.t)}</td><td>${esc(s.symbol)}</td><td>${num(s.ref_close,2)}</td><td class="dn">${num(s.stop,2)}</td><td>${num(s.qty,0)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="mu">No technique produced a signal at this close. That is normal on many days.</p>`}</div>`+screens();
+}
+function screens(){
+  return T.techniques.filter(t=>t.screen).map(t=>`<div class="box"><h2>Near the floor of their range: ${esc(t.name)}</h2>
+   <p class="s">A watchlist, not a buy list. These liquid stocks are in a sideways range and sit in its lowest quarter at the close of ${dt(T.as_of)}. "Waiting" means no bounce yet, so the technique would not buy.</p>
+   ${t.screen.length?`<div class="sc"><table><thead><tr><th>Stock</th><th>Close (₹)</th><th>Range low (₹)</th><th>Range high (₹)</th><th>Position in range</th><th>Buy signal</th></tr></thead><tbody>${t.screen.map(r=>`<tr><td>${esc(r.symbol)}</td><td>${num(r.close,2)}</td><td>${num(r.range_low,2)}</td><td>${num(r.range_high,2)}</td><td>${num(r.pos_pct,0)}%</td><td class="${r.buy_signal?"up":"mu"}">${r.buy_signal?"Yes":"Waiting"}</td></tr>`).join("")}</tbody></table></div><p class="s" style="margin-top:8px">Position in range: 0% is the lowest low of the last 40 trading days, 100% is the highest high.</p>`:`<p class="mu">No stocks are near the floor of a range today.</p>`}</div>`).join("");
 }
 function opens(){
   if(!T)return noT();

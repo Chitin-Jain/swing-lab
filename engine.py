@@ -4,9 +4,9 @@ import json, os
 from datetime import date, datetime, timedelta, timezone
 import numpy as np
 import pandas as pd
-import tech_momentum, tech_breakout52, tech_dma_cross
+import tech_momentum, tech_breakout52, tech_dma_cross, tech_swing_range
 
-TECHS = [tech_momentum, tech_breakout52, tech_dma_cross]
+TECHS = [tech_momentum, tech_breakout52, tech_dma_cross, tech_swing_range]
 IST = timezone(timedelta(hours=5, minutes=30))
 DEFAULTS = dict(capital=500000, risk_pct=1.0, max_positions=10, max_position_pct=15.0,
                 cost_per_side_pct=0.13, slippage_per_side_pct=0.10, min_daily_value_cr=5,
@@ -32,7 +32,7 @@ def make_panel(df, cfg):
     return P
 
 
-def simulate(P, entry, score, exitf, meta, cfg):
+def simulate(P, entry, score, exitf, meta, cfg, stopf=None):
     """Daily paper-trading loop. Signals form at a close and trade at the next open."""
     dates, cols = list(P["close"].index), list(P["close"].columns)
     n = len(dates)
@@ -42,6 +42,7 @@ def simulate(P, entry, score, exitf, meta, cfg):
     Sc = score.reindex_like(ref).values.astype(float)
     X = (exitf.reindex_like(ref).fillna(False).values.astype(bool) if exitf is not None
          else np.zeros_like(E))
+    SL = stopf.reindex_like(ref).values.astype(float) if stopf is not None else None
     cost, slip = cfg["cost_per_side_pct"] / 100, cfg["slippage_per_side_pct"] / 100
     k, maxh = meta["stop_atr"], meta["max_hold"]
     cash, pos, trades, eq = float(cfg["capital"]), {}, [], []
@@ -66,10 +67,18 @@ def simulate(P, entry, score, exitf, meta, cfg):
         for j in pend_in:                                          # 2. entries at today's open
             if len(pos) >= cfg["max_positions"]:
                 break
-            if j in pos or t == 0 or not np.isfinite(O[t, j]) or not np.isfinite(A[t - 1, j]):
+            if j in pos or t == 0 or not np.isfinite(O[t, j]):
                 continue
+            if SL is not None:
+                if not np.isfinite(SL[t - 1, j]):
+                    continue
+                lvl = SL[t - 1, j]                      # technique's own stop level (for example below a range low)
+            else:
+                if not np.isfinite(A[t - 1, j]):
+                    continue
+                lvl = None
             px = O[t, j] * (1 + slip)
-            stop = px - k * A[t - 1, j]
+            stop = lvl if lvl is not None else px - k * A[t - 1, j]
             if stop <= 0 or stop >= px:
                 continue
             qty = int(min(eq_prev * cfg["risk_pct"] / 100 / (px - stop),
@@ -110,9 +119,12 @@ def simulate(P, entry, score, exitf, meta, cfg):
     eq_now = eq[-1] if eq else cfg["capital"]
     sigs = []
     for j in pend_in:
-        if not np.isfinite(A[last, j]):
+        if SL is not None:
+            stop = SL[last, j]
+        else:
+            stop = C[last, j] - k * A[last, j] if np.isfinite(A[last, j]) else np.nan
+        if not np.isfinite(stop) or stop >= C[last, j]:
             continue
-        stop = C[last, j] - k * A[last, j]
         if stop <= 0:
             continue
         qty = int(min(eq_now * cfg["risk_pct"] / 100 / (C[last, j] - stop),
@@ -151,6 +163,18 @@ def metrics(eq, trades, days, min_trades):
     return out
 
 
+def screen_rows(sig, P):
+    """Stocks sitting near the low of their range today (a watchlist, whether or not a buy signal has fired)."""
+    sc = sig.get("screen")
+    if not sc:
+        return None
+    pos = sc["pos"].iloc[-1].dropna().sort_values().head(15)
+    trig = sig["entry"].iloc[-1]
+    return [{"symbol": s, "close": P["close"][s].iloc[-1], "range_low": sc["low"][s].iloc[-1],
+             "range_high": sc["high"][s].iloc[-1], "pos_pct": v * 100, "buy_signal": bool(trig[s])}
+            for s, v in pos.items()]
+
+
 def clean(o):
     if isinstance(o, dict):
         return {k: clean(v) for k, v in o.items()}
@@ -180,14 +204,14 @@ def run(df_adj, user_cfg=None, out_dir="docs/data", data_dir="data"):
     log_rows = []
     for T in TECHS:
         sig = T.signals(P, cfg)
-        res = simulate(P, sig["entry"], sig["score"], sig.get("exit"), T.META, cfg)
+        res = simulate(P, sig["entry"], sig["score"], sig.get("exit"), T.META, cfg, sig.get("stop"))
         eq = res["equity"]
         result["techniques"].append({
             "id": T.META["id"], "name": T.META["name"], "hold": T.META["hold"], "rules": T.META["rules"],
             "total_trades": len(res["trades"]),
             "windows": {w: metrics(eq, res["trades"], d, cfg["min_trades"]) for w, d in WINDOWS.items()},
             "equity": [[dates[i], eq.iloc[i], bench.iloc[i]] for i in pts],
-            "open": res["open"], "signals": res["signals"],
+            "open": res["open"], "signals": res["signals"], "screen": screen_rows(sig, P),
             "closed": sorted(res["trades"], key=lambda t: t["exit_date"], reverse=True)[:150]})
         for s in res["signals"]:
             log_rows.append({"as_of": as_of, "technique": T.META["id"], "symbol": s["symbol"], "ref_close": round(s["ref_close"], 2)})
