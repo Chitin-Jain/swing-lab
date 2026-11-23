@@ -21,7 +21,11 @@ os.makedirs(DATA, exist_ok=True); os.makedirs(OUT, exist_ok=True)
 
 
 def parse(text):
-    df = pd.read_csv(io.StringIO(text), skipinitialspace=True)
+    lines = text.splitlines()
+    hi = next((i for i, l in enumerate(lines[:40]) if "SYMBOL" in l.upper() and "SERIES" in l.upper()), None)
+    if hi is None:
+        raise ValueError("Not a price file. It starts with: " + " | ".join(lines[:3])[:200])
+    df = pd.read_csv(io.StringIO("\n".join(lines[hi:])), skipinitialspace=True, on_bad_lines="skip")
     df.columns = [c.strip().upper() for c in df.columns]
     miss = [c for c in COLS if c not in df.columns]
     if miss:
@@ -83,15 +87,22 @@ def do_fetch(start, end, src_dir=None):
     else:
         files = sorted(glob.glob(f"{DATA}/prices_*.csv.gz"))
         start = date.fromisoformat(load(1).DATE1.max()) + timedelta(days=1) if files else today - timedelta(days=45)
-    sess, frames, got, skipped = requests.Session(), [], 0, 0
+    sess, frames, got, skipped, failed, streak = requests.Session(), [], 0, 0, [], 0
     if not src_dir:
         try: sess.get("https://www.nseindia.com", headers=HDR, timeout=20)
         except requests.RequestException: pass
     d = start
     while d <= end:
         if d.weekday() < 5:
-            df = fetch_day(sess, d, src_dir)
+            try:
+                df = fetch_day(sess, d, src_dir)
+                streak = 0
+            except Exception as e:  # skip a bad day, keep going, report at the end
+                failed.append(f"{d}: {str(e)[:220]}"); print("Skipped", failed[-1]); df = None; streak += 1
+                if streak >= 10:
+                    print("10 days in a row failed, so stopping. NSE may be blocking or the format differs."); break
             if df is None: skipped += 1
+            elif df.empty: failed.append(f"{d}: file had no EQ rows")
             else: frames.append(df); got += 1
             if len(frames) >= 20:
                 save(pd.concat(frames)); frames = []
@@ -99,7 +110,11 @@ def do_fetch(start, end, src_dir=None):
         d += timedelta(days=1)
     if frames:
         save(pd.concat(frames))
-    print(f"Fetch done: {got} trading days saved, {skipped} weekdays with no file (holidays or not published yet).")
+    print(f"Fetch done: {got} trading days saved, {skipped} weekdays with no usable file (holidays, not published, or errors).")
+    if failed:
+        print(f"{len(failed)} days had problems. First few:"); [print("  ", x) for x in failed[:5]]
+    if got == 0 and failed:
+        sys.exit("Nothing could be downloaded. See the messages above.")
 
 
 def adjusted(df):
