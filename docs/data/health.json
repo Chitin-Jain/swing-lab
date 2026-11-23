@@ -1,12 +1,12 @@
 {
  "as_of": "2026-11-23",
- "generated_at": "2026-11-23T21:05+05:30",
+ "generated_at": "2026-11-24T00:16+05:30",
  "overall": "PASS",
  "checks": [
   {
    "check": "Latest price date is recent",
    "status": "Pass",
-   "detail": "Latest data is for 2026-11-23 (0 days ago)"
+   "detail": "Latest data is for 2026-11-23 (1 days ago)"
   },
   {
    "check": "No gaps longer than 7 days (last 90 days)",
