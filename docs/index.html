@@ -56,11 +56,12 @@ const inr=n=>(n<0?"-":"")+"₹"+Math.round(Math.abs(n)).toLocaleString("en-IN");
 const dt=s=>{const d=new Date(s+"T00:00:00");return isNaN(d)?esc(s):d.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})};
 const PL={"1D":"Latest session","1W":"1 week","1M":"1 month","3M":"3 months","1Y":"1 year"};
 const WL={"all":"Full history","3Y":"3 years","1Y":"1 year","3M":"3 months","1M":"1 month"};
-let M=null,H=null,T=null,problems=[],tab="mkt",per="1D",win="all",sel=null,closedF="all",asTable=false,CH=null;
+let S=null,sym="",amt=100000,M=null,H=null,T=null,problems=[],tab="mkt",per="1D",win="all",sel=null,closedF="all",asTable=false,CH=null;
 
 async function getJSON(p){const r=await fetch(p+"?t="+Date.now());if(!r.ok)throw new Error(p+" returned HTTP "+r.status);return r.json()}
 async function load(){
-  const [m,h,t]=await Promise.allSettled([getJSON("data/market.json"),getJSON("data/health.json"),getJSON("data/techniques.json")]);
+  const [m,h,t,st]=await Promise.allSettled([getJSON("data/market.json"),getJSON("data/health.json"),getJSON("data/techniques.json"),getJSON("data/stocks.json")]);
+  if(st.status=="fulfilled")S=st.value;
   if(m.status=="fulfilled")M=m.value;else problems.push("Market data not found. Run the Daily update in GitHub Actions, then reload. ("+m.reason.message+")");
   if(h.status=="fulfilled")H=h.value;else problems.push("Health report not found. ("+h.reason.message+")");
   if(t.status=="fulfilled"){T=t.value;sel=T.techniques.length?T.techniques[0].id:null}
@@ -75,7 +76,7 @@ function status(){
     if(age>4)h+=`<div class="note warn"><b>Data is ${age} days old.</b> The daily update may have failed. Check the Actions tab in GitHub.</div>`}
   $("status").innerHTML=h;
 }
-const TABS=[["mkt","Market overview"],["board","Leaderboard"],["sig","Today’s signals"],["open","Open paper trades"],["closed","Closed trades"],["health","Data health"]];
+const TABS=[["mkt","Market overview"],["board","Leaderboard"],["stock","Stock check"],["sig","Today’s signals"],["open","Open paper trades"],["closed","Closed trades"],["health","Data health"]];
 function nav(){$("nav").innerHTML=TABS.map(([k,l])=>`<button data-k="${k}" class="${k==tab?"on":""}">${l}</button>`).join("")}
 function kpi(v,l,c=""){return `<div class="kpi"><b class="${c}">${v}</b><span>${l}</span></div>`}
 const noT=()=>`<div class="box"><h2>No technique results yet</h2><p class="s">The page needs docs/data/techniques.json. It is created by the Daily update once engine.py and the three tech_ files are in the repository. Run the Daily update, wait for a green tick, then reload.</p></div>`;
@@ -215,9 +216,35 @@ function bindChart(){
   hit.addEventListener("mousemove",move);hit.addEventListener("touchmove",move,{passive:true});hit.addEventListener("mouseleave",out);hit.addEventListener("touchend",out);
 }
 
+function spark(h){
+  const W=600,Hh=120,lo=Math.min(...h),hi=Math.max(...h),x=i=>6+i*(W-12)/(h.length-1),y=v=>Hh-8-(v-lo)/((hi-lo)||1)*(Hh-16);
+  return `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Weekly closing price over the last year, from ${num(h[0],0)} to ${num(h[h.length-1],0)} rupees"><polyline fill="none" stroke="var(--s1)" stroke-width="2" points="${h.map((v,i)=>x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ")}"/><text x="6" y="12" font-size="11" fill="var(--mut)">High ₹${num(hi,0)}</text><text x="6" y="${Hh-1}" font-size="11" fill="var(--mut)">Low ₹${num(lo,0)}</text></svg>`}
+function stockTab(){
+  if(!S)return `<div class="box"><h2>Stock check</h2><p class="mu">Stock data not found yet. Run the Daily update in GitHub Actions, then reload.</p></div>`;
+  const names=Object.keys(S.stocks).sort(),r=S.stocks[sym];
+  let h=`<div class="box"><h2>Stock check</h2><p class="s">Type or pick a stock. Everything below is calculated from stored NSE prices as of ${dt(S.as_of)}. It covers liquid stocks with at least about six months of history (${names.length} stocks). It does not include company results, valuation or news.</p>
+  <input id="sym" list="syms" placeholder="Type a symbol, e.g. COFORGE" value="${esc(sym)}" autocomplete="off" style="font:inherit;padding:6px 10px;border:1px solid var(--ln);border-radius:6px;background:var(--sf);color:var(--ink);min-width:240px"><datalist id="syms">${names.map(n=>`<option value="${n}">`).join("")}</datalist></div>`;
+  if(sym&&!r)return h+`<div class="box"><p class="mu">${esc(sym)} is not in the list. Only liquid EQ stocks with enough history are included.</p></div>`;
+  if(!r)return h;
+  const m=r.m,k=(v,l,c="")=>kpi(v,l,c);
+  h+=`<div class="box"><h2>${esc(sym)} · ₹${num(r.px,2)}</h2>
+  <div class="kpis">${k(r.r1m==null?"n/a":pct(r.r1m),"1 month",cls(r.r1m))}${k(r.r3m==null?"n/a":pct(r.r3m),"3 months",cls(r.r3m))}${k(r.r6m==null?"n/a":pct(r.r6m),"6 months",cls(r.r6m))}${k(r.r1y==null?"n/a":pct(r.r1y),"1 year",cls(r.r1y))}
+  ${k(N(r.vs50,1,"%"),"vs 50-day average",cls(r.vs50))}${k(N(r.vs200,1,"%"),"vs 200-day average",cls(r.vs200))}${k(N(r.off_hi,1,"%"),"from 52-week high",cls(r.off_hi))}${k(N(r.vol,0,"%"),"yearly swing (volatility)")}${k("₹"+num(r.tv,1)+" cr","traded per day")}</div>
+  <div class="chart">${spark(r.hist)}</div><p class="s">Weekly closing price, last year (adjusted for splits and bonuses).</p>
+  <p>${r.flags.length?`<b>Flagged today by:</b> ${r.flags.map(esc).join(", ")}.`:`<span class="mu">Not flagged by any technique today.</span>`}</p></div>`;
+  if(m){
+    const a=Number(amt)||0,loss=v=>inr(a*v/100);
+    h+=`<div class="box"><h2>If you held ${esc(sym)} for about a month</h2><p class="s">What happened over every 21-trading-day holding period (about one month) in the last ${num(m.n/252,1)} years of stored prices (${m.n} overlapping periods, so treat as a rough guide).</p>
+    <div class="kpis">${k(pct(m.med),"typical month (median)",cls(m.med))}${k(N(m.up,0,"%"),"months that ended up")}${k(pct(m.p10),"worst 1 in 10 months",cls(m.p10))}${k(pct(m.worst),"worst month",cls(m.worst))}${k(pct(m.p90),"best 1 in 10 months",cls(m.p90))}${k(pct(m.best),"best month",cls(m.best))}</div>
+    <p>Amount you plan to invest (₹): <input id="amt" type="number" min="0" step="10000" value="${esc(amt)}" style="font:inherit;padding:5px 8px;width:140px;border:1px solid var(--ln);border-radius:6px;background:var(--sf);color:var(--ink)"></p>
+    <p>On ${inr(a)}: a worst-1-in-10 month would have meant about <b class="dn">${loss(m.p10)}</b>, the worst month in this window about <b class="dn">${loss(m.worst)}</b>, and a typical month about <b class="${cls(m.med)}">${loss(m.med)}</b> (before costs and taxes).</p>
+    <p class="s">Past monthly moves do not limit future ones. Decide in advance how much loss you can accept and the price at which you will review the position.</p></div>`;
+  }else h+=`<div class="box"><p class="mu">Not enough history to show one-month holding results for this stock.</p></div>`;
+  return h;
+}
 function render(){
   status();nav();CH=null;
-  $("main").innerHTML=({mkt,board,sig:sigs,open:opens,closed:closeds,health})[tab]();
+  $("main").innerHTML=({mkt,board,stock:stockTab,sig:sigs,open:opens,closed:closeds,health})[tab]();
   bindChart();
 }
 $("nav").onclick=e=>{const b=e.target.closest("[data-k]");if(b){tab=b.dataset.k;render()}};
@@ -230,6 +257,8 @@ $("main").onkeydown=e=>{if(e.key=="Enter"){const b=e.target.closest&&e.target.cl
 $("main").onchange=e=>{
   if(e.target.id=="win"){win=e.target.value;render()}
   if(e.target.id=="cf"){closedF=e.target.value;render()}
+  if(e.target.id=="sym"){sym=e.target.value.trim().toUpperCase();render()}
+  if(e.target.id=="amt"){amt=e.target.value;render()}
 };
 load();
 </script></body></html>

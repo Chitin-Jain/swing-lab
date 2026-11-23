@@ -249,6 +249,8 @@ def run_engine():
         print("engine.py not found: techniques skipped."); return
     full = adjusted(load(full=True))
     engine.run(full, CFG)
+    import stockview
+    stockview.run(full, min_cr=CFG["min_daily_value_cr"])
 
 
 if __name__ == "__main__":
