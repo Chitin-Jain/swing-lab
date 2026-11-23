@@ -1,0 +1,5 @@
+{
+  "series": ["EQ"],
+  "min_daily_value_cr": 5,
+  "ca_threshold": 0.02
+}
