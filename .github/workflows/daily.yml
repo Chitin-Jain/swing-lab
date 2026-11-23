@@ -1,0 +1,37 @@
+name: Daily update
+
+on:
+  schedule:
+    - cron: "30 14 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      start:
+        description: "Start date YYYY-MM-DD (leave empty for the normal daily run)"
+        required: false
+      end:
+        description: "End date YYYY-MM-DD (leave empty for today)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Run pipeline
+        run: python pipeline.py all --start "${{ github.event.inputs.start }}" --end "${{ github.event.inputs.end }}"
+      - name: Save results
+        if: always()
+        run: |
+          git config user.name "swing-lab-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add data docs/data
+          git diff --cached --quiet || git commit -m "Data update $(date -u +%F)"
+          git push
