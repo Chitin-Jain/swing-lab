@@ -1,12 +1,12 @@
 {
  "as_of": "2026-11-20",
  "source": "NSE daily price file (EQ series)",
- "generated_at": "2026-11-23T15:17+05:30",
+ "generated_at": "2026-11-23T15:36+05:30",
  "liquid_universe": 1290,
  "min_daily_value_cr": 5,
  "total_traded_value_cr": 135092.6,
- "closing_52w_highs": 174,
- "closing_52w_lows": 158,
+ "closing_52w_highs": 83,
+ "closing_52w_lows": 81,
  "periods": {
   "1D": {
    "from": "2026-11-19",
@@ -263,6 +263,135 @@
      "close": 177.6,
      "change_pct": -15.31,
      "traded_cr": 2.1
+    }
+   ]
+  },
+  "1Y": {
+   "from": "2025-11-20",
+   "advances": 509,
+   "declines": 596,
+   "gainers": [
+    {
+     "symbol": "INDSWFTLAB",
+     "close": 317.05,
+     "change_pct": 243.83,
+     "traded_cr": 15.5
+    },
+    {
+     "symbol": "SPECTRUM",
+     "close": 4468.2,
+     "change_pct": 228.47,
+     "traded_cr": 7.5
+    },
+    {
+     "symbol": "SGMART",
+     "close": 1097.05,
+     "change_pct": 204.91,
+     "traded_cr": 200.8
+    },
+    {
+     "symbol": "SHREEJISPG",
+     "close": 913.8,
+     "change_pct": 203.84,
+     "traded_cr": 30.5
+    },
+    {
+     "symbol": "SANSERA",
+     "close": 4798.4,
+     "change_pct": 194.67,
+     "traded_cr": 95.4
+    },
+    {
+     "symbol": "ATHERENERG",
+     "close": 1935.4,
+     "change_pct": 177.68,
+     "traded_cr": 341.0
+    },
+    {
+     "symbol": "MENONBE",
+     "close": 307.15,
+     "change_pct": 165.84,
+     "traded_cr": 9.7
+    },
+    {
+     "symbol": "SBC",
+     "close": 68.6,
+     "change_pct": 160.84,
+     "traded_cr": 80.6
+    },
+    {
+     "symbol": "TFCILTD",
+     "close": 171.85,
+     "change_pct": 155.24,
+     "traded_cr": 77.9
+    },
+    {
+     "symbol": "SSWL",
+     "close": 524.8,
+     "change_pct": 154.82,
+     "traded_cr": 19.9
+    }
+   ],
+   "losers": [
+    {
+     "symbol": "PASHUPATI",
+     "close": 27.18,
+     "change_pct": -96.29,
+     "traded_cr": 15.9
+    },
+    {
+     "symbol": "TEMBO",
+     "close": 50.1,
+     "change_pct": -93.81,
+     "traded_cr": 5.5
+    },
+    {
+     "symbol": "V2RETAIL",
+     "close": 162.06,
+     "change_pct": -93.22,
+     "traded_cr": 1669.6
+    },
+    {
+     "symbol": "SILVERADD",
+     "close": 14.63,
+     "change_pct": -90.18,
+     "traded_cr": 51.4
+    },
+    {
+     "symbol": "SILVER1",
+     "close": 14.75,
+     "change_pct": -90.16,
+     "traded_cr": 49.2
+    },
+    {
+     "symbol": "GROWWSLVR",
+     "close": 15.12,
+     "change_pct": -90.05,
+     "traded_cr": 14.9
+    },
+    {
+     "symbol": "BANKNIFTY1",
+     "close": 67.3,
+     "change_pct": -89.02,
+     "traded_cr": 7.1
+    },
+    {
+     "symbol": "PSUBANK",
+     "close": 98.47,
+     "change_pct": -88.44,
+     "traded_cr": 3.4
+    },
+    {
+     "symbol": "ANGELONE",
+     "close": 348.3,
+     "change_pct": -87.62,
+     "traded_cr": 316.8
+    },
+    {
+     "symbol": "AJMERA",
+     "close": 149.29,
+     "change_pct": -85.33,
+     "traded_cr": 97.1
     }
    ]
   }

@@ -1,6 +1,6 @@
 {
  "as_of": "2026-11-20",
- "generated_at": "2026-11-23T15:17+05:30",
+ "generated_at": "2026-11-23T15:36+05:30",
  "overall": "PASS",
  "checks": [
   {
@@ -15,8 +15,8 @@
   },
   {
    "check": "No gaps in older history (last 400 days)",
-   "status": "Pass",
-   "detail": "None"
+   "status": "Warn",
+   "detail": "2025-12-31 to 2026-10-23 (fills in as you load more years)"
   },
   {
    "check": "Stock count on latest day is normal",
