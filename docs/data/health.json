@@ -1,6 +1,6 @@
 {
  "as_of": "2026-11-20",
- "generated_at": "2026-11-23T16:26+05:30",
+ "generated_at": "2026-11-23T16:58+05:30",
  "overall": "PASS",
  "checks": [
   {
@@ -52,6 +52,11 @@
    "check": "Corporate actions detected and auto-adjusted today",
    "status": "Pass",
    "detail": "None today"
+  },
+  {
+   "check": "No unexplained one-day moves above 40% after split adjustment (last 400 days)",
+   "status": "Warn",
+   "detail": "4 cases that look neither like crashes nor splits, for example BESTAGRO 2026-01-16, BIOFILCHEM 2026-02-02, DELPHIFX 2026-02-13, TRANSWORLD 2026-11-09"
   },
   {
    "check": "Closing prices match a second source",

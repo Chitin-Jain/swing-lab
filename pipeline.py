@@ -6,6 +6,7 @@ all   : fetch, then check, then build (build is skipped if a critical check fail
 """
 import argparse, glob, io, json, os, sys, time
 from datetime import date, datetime, timedelta, timezone
+import numpy as np
 import pandas as pd
 import requests
 
@@ -118,18 +119,44 @@ def do_fetch(start, end, src_dir=None):
         sys.exit("Nothing could be downloaded. See the messages above.")
 
 
+# Common split/bonus price ratios and how far a real ex-date move may drift from them (log scale)
+SPLIT_RATIOS = [(0.5, 0.22), (1 / 3, 0.22), (0.25, 0.22), (0.2, 0.22), (0.1, 0.25), (0.05, 0.25), (0.01, 0.25),
+                (2 / 3, 0.07), (2.0, 0.20), (3.0, 0.20), (4.0, 0.20), (5.0, 0.20), (10.0, 0.25)]
+
+
+def snap_split(r):
+    """If a one-day price ratio looks like a split, bonus or consolidation, return the clean ratio, else NaN."""
+    best, score = np.nan, 9.0
+    for k, tol in SPLIT_RATIOS:
+        d = abs(np.log(r / k)) / tol
+        if d <= 1 and d < score:
+            best, score = k, d
+    return best
+
+
 def adjusted(df):
-    """Adds ADJ (split/bonus-adjusted close) and flags corporate-action days using PREV_CLOSE."""
+    """Adds ADJ (split/bonus-adjusted close) and CA (corporate-action day flag).
+    NSE's PREV_CLOSE column is not adjusted for splits, so splits are recognised from the one-day price ratio
+    (about 1/2, 1/3, 1/5, 1/10 and similar). Where PREV_CLOSE is adjusted, that exact figure is used instead."""
     df = df.sort_values(["SYMBOL", "DATE1"]).copy()
     df["D"] = pd.to_datetime(df.DATE1)
     g = df.groupby("SYMBOL")
-    ratio = df.PREV_CLOSE / g.CLOSE_PRICE.shift(1)
+    prev_close = g.CLOSE_PRICE.shift(1)
     consecutive = (df.D - g.D.shift(1)).dt.days <= 5
+    ratio = df.PREV_CLOSE / prev_close
     # If almost every stock's previous close differs from our stored close, a trading day is missing
     # from our data. That is a data gap, not thousands of splits, so no adjustment is made that day.
     tiny = (consecutive & ((ratio - 1).abs() > 0.002)).groupby(df.DATE1).transform("mean")
-    df["CA"] = (consecutive & ((ratio - 1).abs() > CFG["ca_threshold"]) & (tiny < 0.5)).fillna(False)
-    f = ratio.where(df.CA, 1.0).fillna(1.0)
+    by_prev = (consecutive & ((ratio - 1).abs() > CFG["ca_threshold"]) & (tiny < 0.5)).fillna(False)
+    raw = df.CLOSE_PRICE / prev_close
+    cand = consecutive & ((raw < 0.72) | (raw > 1.6)) & ~by_prev
+    snapped = pd.Series(np.nan, index=df.index)
+    snapped[cand] = raw[cand].map(snap_split)
+    by_snap = snapped.notna()
+    f = pd.Series(1.0, index=df.index)
+    f[by_snap] = snapped[by_snap]
+    f[by_prev] = ratio[by_prev]
+    df["CA"] = by_prev | by_snap
     rev = f.groupby(df.SYMBOL).transform(lambda s: s[::-1].cumprod()[::-1])
     df["ADJ"] = df.CLOSE_PRICE * (rev / f)
     return df
@@ -166,6 +193,12 @@ def do_check(df):
     a = adjusted(w)
     ca = a[a.CA & (a.DATE1 == last)]
     add("Corporate actions detected and auto-adjusted today", True, "None today" if ca.empty else f"{len(ca)} stocks: " + ", ".join(ca.SYMBOL.head(8)))
+    a2 = adjusted(df)
+    g2 = a2.groupby("SYMBOL")
+    mv2 = a2[(g2.ADJ.pct_change().abs() > 0.4) & ((a2.D - g2.D.shift(1)).dt.days <= 5)]
+    add("No unexplained one-day moves above 40% after split adjustment (last 400 days)", mv2.empty,
+        "None" if mv2.empty else f"{len(mv2)} cases that look neither like crashes nor splits, for example " +
+        ", ".join(f"{r.SYMBOL} {r.DATE1}" for r in mv2.head(5).itertuples()), critical=False)
     res.append({"check": "Closing prices match a second source", "status": "Pending", "detail": "Needs a second data source. Planned for a later phase."})
     overall = "FAIL" if any(r["status"] == "Fail" for r in res) else "PASS"
     json.dump({"as_of": last, "generated_at": datetime.now(IST).isoformat(timespec="minutes"), "overall": overall, "checks": res},

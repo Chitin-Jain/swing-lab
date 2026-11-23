@@ -1,12 +1,12 @@
 {
  "as_of": "2026-11-20",
  "source": "NSE daily price file (EQ series)",
- "generated_at": "2026-11-23T16:26+05:30",
+ "generated_at": "2026-11-23T16:58+05:30",
  "liquid_universe": 1290,
  "min_daily_value_cr": 5,
  "total_traded_value_cr": 135092.6,
- "closing_52w_highs": 49,
- "closing_52w_lows": 45,
+ "closing_52w_highs": 52,
+ "closing_52w_lows": 40,
  "periods": {
   "1D": {
    "from": "2026-11-19",
@@ -268,8 +268,8 @@
   },
   "1M": {
    "from": "2026-10-21",
-   "advances": 758,
-   "declines": 488,
+   "advances": 760,
+   "declines": 486,
    "gainers": [
     {
      "symbol": "RAMKY",
@@ -334,40 +334,16 @@
    ],
    "losers": [
     {
-     "symbol": "JSWDULUX",
-     "close": 271.4,
-     "change_pct": -90.94,
-     "traded_cr": 14.9
-    },
-    {
-     "symbol": "GNRL",
-     "close": 11.98,
-     "change_pct": -86.68,
-     "traded_cr": 9.7
-    },
-    {
-     "symbol": "KMEW",
-     "close": 716.7,
-     "change_pct": -77.03,
-     "traded_cr": 31.9
-    },
-    {
-     "symbol": "PASHUPATI",
-     "close": 27.18,
-     "change_pct": -71.14,
-     "traded_cr": 15.9
-    },
-    {
-     "symbol": "CONCORDBIO",
-     "close": 548.2,
-     "change_pct": -56.83,
-     "traded_cr": 7.1
-    },
-    {
      "symbol": "SHANTIGOLD",
      "close": 227.2,
      "change_pct": -43.09,
      "traded_cr": 40.1
+    },
+    {
+     "symbol": "PASHUPATI",
+     "close": 27.18,
+     "change_pct": -42.27,
+     "traded_cr": 15.9
     },
     {
      "symbol": "EBGNG",
@@ -392,13 +368,37 @@
      "close": 15.35,
      "change_pct": -25.63,
      "traded_cr": 53.7
+    },
+    {
+     "symbol": "SILVER1",
+     "close": 14.75,
+     "change_pct": -25.51,
+     "traded_cr": 49.2
+    },
+    {
+     "symbol": "SILVERADD",
+     "close": 14.63,
+     "change_pct": -25.47,
+     "traded_cr": 51.4
+    },
+    {
+     "symbol": "HDFCSILVER",
+     "close": 145.35,
+     "change_pct": -25.45,
+     "traded_cr": 271.0
+    },
+    {
+     "symbol": "SBISILVER",
+     "close": 149.16,
+     "change_pct": -25.45,
+     "traded_cr": 76.2
     }
    ]
   },
   "3M": {
    "from": "2026-08-21",
-   "advances": 448,
-   "declines": 750,
+   "advances": 451,
+   "declines": 747,
    "gainers": [
     {
      "symbol": "CCAVENUE",
@@ -463,72 +463,78 @@
    ],
    "losers": [
     {
-     "symbol": "SILVERADD",
-     "close": 14.63,
-     "change_pct": -93.77,
-     "traded_cr": 51.4
-    },
-    {
-     "symbol": "GOLDADD",
-     "close": 11.91,
-     "change_pct": -92.3,
-     "traded_cr": 73.2
-    },
-    {
-     "symbol": "JSWDULUX",
-     "close": 271.4,
-     "change_pct": -91.3,
-     "traded_cr": 14.9
-    },
-    {
-     "symbol": "CORDELIA",
-     "close": 85.81,
-     "change_pct": -91.23,
-     "traded_cr": 3.8
-    },
-    {
-     "symbol": "GNRL",
-     "close": 11.98,
-     "change_pct": -88.24,
-     "traded_cr": 9.7
-    },
-    {
-     "symbol": "BUILDPRO",
-     "close": 185.4,
-     "change_pct": -85.24,
-     "traded_cr": 3.5
-    },
-    {
      "symbol": "INDIAGLYCO",
      "close": 264.35,
      "change_pct": -76.94,
      "traded_cr": 6.5
     },
     {
-     "symbol": "KMEW",
-     "close": 716.7,
-     "change_pct": -73.7,
-     "traded_cr": 31.9
+     "symbol": "RHETAN",
+     "close": 12.96,
+     "change_pct": -46.49,
+     "traded_cr": 5.6
+    },
+    {
+     "symbol": "LASERPOWER",
+     "close": 189.99,
+     "change_pct": -43.72,
+     "traded_cr": 18.0
+    },
+    {
+     "symbol": "JSLL",
+     "close": 300.2,
+     "change_pct": -40.6,
+     "traded_cr": 27.4
+    },
+    {
+     "symbol": "INDOTECH",
+     "close": 2344.4,
+     "change_pct": -39.93,
+     "traded_cr": 3.6
+    },
+    {
+     "symbol": "RRKABEL",
+     "close": 1810.2,
+     "change_pct": -37.99,
+     "traded_cr": 38.2
+    },
+    {
+     "symbol": "SILVERCASE",
+     "close": 15.35,
+     "change_pct": -37.83,
+     "traded_cr": 53.7
     },
     {
      "symbol": "PASHUPATI",
      "close": 27.18,
-     "change_pct": -68.85,
+     "change_pct": -37.7,
      "traded_cr": 15.9
     },
     {
-     "symbol": "CONCORDBIO",
-     "close": 548.2,
-     "change_pct": -65.11,
-     "traded_cr": 7.1
+     "symbol": "SILVERADD",
+     "close": 14.63,
+     "change_pct": -37.67,
+     "traded_cr": 51.4
+    },
+    {
+     "symbol": "SILVER1",
+     "close": 14.75,
+     "change_pct": -37.66,
+     "traded_cr": 49.2
     }
    ]
   },
   "1Y": {
    "from": "2025-11-20",
-   "advances": 517,
-   "declines": 588,
+   "advances": 547,
+   "declines": 558,
    "gainers": [
+    {
+     "symbol": "CUPID",
+     "close": 365.65,
+     "change_pct": 343.87,
+     "traded_cr": 228.5
+    },
     {
      "symbol": "SPECTRUM",
      "close": 4468.2,
@@ -582,74 +588,68 @@
      "close": 1023.4,
      "change_pct": 161.4,
      "traded_cr": 15.6
-    },
-    {
-     "symbol": "SBC",
-     "close": 68.6,
-     "change_pct": 160.84,
-     "traded_cr": 80.6
     }
    ],
    "losers": [
     {
-     "symbol": "PASHUPATI",
-     "close": 27.18,
-     "change_pct": -96.66,
-     "traded_cr": 15.9
+     "symbol": "INDIAGLYCO",
+     "close": 264.35,
+     "change_pct": -77.13,
+     "traded_cr": 6.5
     },
     {
-     "symbol": "TEMBO",
-     "close": 50.1,
-     "change_pct": -93.81,
-     "traded_cr": 5.5
+     "symbol": "OSWALPUMPS",
+     "close": 218.42,
+     "change_pct": -65.46,
+     "traded_cr": 4.0
     },
     {
-     "symbol": "V2RETAIL",
-     "close": 162.06,
-     "change_pct": -93.22,
-     "traded_cr": 1669.6
+     "symbol": "LATENTVIEW",
+     "close": 192.98,
+     "change_pct": -60.86,
+     "traded_cr": 8.7
     },
     {
-     "symbol": "SILVERADD",
-     "close": 14.63,
-     "change_pct": -90.18,
-     "traded_cr": 51.4
+     "symbol": "ZAGGLE",
+     "close": 153.12,
+     "change_pct": -60.23,
+     "traded_cr": 7.6
     },
     {
-     "symbol": "SILVER1",
-     "close": 14.75,
-     "change_pct": -90.16,
-     "traded_cr": 49.2
+     "symbol": "INOXWIND",
+     "close": 55.46,
+     "change_pct": -59.83,
+     "traded_cr": 139.9
     },
     {
-     "symbol": "GROWWSLVR",
-     "close": 15.12,
-     "change_pct": -90.05,
-     "traded_cr": 14.9
+     "symbol": "JSLL",
+     "close": 300.2,
+     "change_pct": -58.08,
+     "traded_cr": 27.4
     },
     {
-     "symbol": "BANKNIFTY1",
-     "close": 67.3,
-     "change_pct": -89.02,
-     "traded_cr": 7.1
+     "symbol": "KPEL",
+     "close": 172.13,
+     "change_pct": -57.43,
+     "traded_cr": 5.1
     },
     {
-     "symbol": "PSUBANK",
-     "close": 98.47,
-     "change_pct": -88.44,
-     "traded_cr": 3.4
+     "symbol": "KEC",
+     "close": 300.15,
+     "change_pct": -57.16,
+     "traded_cr": 76.4
     },
     {
-     "symbol": "ANGELONE",
-     "close": 348.3,
-     "change_pct": -87.62,
-     "traded_cr": 316.8
+     "symbol": "KPITTECH",
+     "close": 519.0,
+     "change_pct": -56.63,
+     "traded_cr": 81.5
     },
     {
-     "symbol": "AJMERA",
-     "close": 149.29,
-     "change_pct": -85.33,
-     "traded_cr": 97.1
+     "symbol": "CAMLINFINE",
+     "close": 70.39,
+     "change_pct": -55.8,
+     "traded_cr": 3.7
     }
    ]
   }
