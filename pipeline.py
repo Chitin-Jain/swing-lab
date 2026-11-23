@@ -68,14 +68,15 @@ def save(df):
         new.to_csv(p, index=False, compression="gzip")
 
 
-def load(last_files=None):
+def load(last_files=None, full=False):
     files = sorted(glob.glob(f"{DATA}/prices_*.csv.gz"))
     if not files:
         sys.exit("No price data stored yet. Run the fetch step first.")
     if last_files:
         files = files[-last_files:]
     df = pd.concat(pd.read_csv(f) for f in files)
-    df = df[df.DATE1 >= (date.fromisoformat(df.DATE1.max()) - timedelta(days=400)).isoformat()]
+    if not full:
+        df = df[df.DATE1 >= (date.fromisoformat(df.DATE1.max()) - timedelta(days=400)).isoformat()]
     return df.sort_values(["SYMBOL", "DATE1"]).reset_index(drop=True)
 
 
@@ -124,7 +125,10 @@ def adjusted(df):
     g = df.groupby("SYMBOL")
     ratio = df.PREV_CLOSE / g.CLOSE_PRICE.shift(1)
     consecutive = (df.D - g.D.shift(1)).dt.days <= 5
-    df["CA"] = (consecutive & ((ratio - 1).abs() > CFG["ca_threshold"])).fillna(False)
+    # If almost every stock's previous close differs from our stored close, a trading day is missing
+    # from our data. That is a data gap, not thousands of splits, so no adjustment is made that day.
+    tiny = (consecutive & ((ratio - 1).abs() > 0.002)).groupby(df.DATE1).transform("mean")
+    df["CA"] = (consecutive & ((ratio - 1).abs() > CFG["ca_threshold"]) & (tiny < 0.5)).fillna(False)
     f = ratio.where(df.CA, 1.0).fillna(1.0)
     rev = f.groupby(df.SYMBOL).transform(lambda s: s[::-1].cumprod()[::-1])
     df["ADJ"] = df.CLOSE_PRICE * (rev / f)
@@ -201,17 +205,30 @@ def do_build(df):
     print(f"Built market.json for {last}: {len(liquid)} liquid EQ stocks.")
 
 
+def run_engine():
+    try:
+        import engine
+    except ImportError:
+        print("engine.py not found: techniques skipped."); return
+    full = adjusted(load(full=True))
+    engine.run(full, CFG)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["fetch", "check", "build", "all"])
+    ap.add_argument("cmd", choices=["fetch", "check", "build", "all", "engine"])
     ap.add_argument("--start"); ap.add_argument("--end"); ap.add_argument("--from-dir")
     a = ap.parse_args()
+    if a.cmd == "engine":
+        run_engine(); sys.exit(0)
     if a.cmd in ("fetch", "all"):
         do_fetch(a.start or None, a.end or None, a.from_dir)
     if a.cmd in ("check", "build", "all"):
         data = load(3)
         ok = do_check(data) if a.cmd in ("check", "all") else True
         if a.cmd in ("build", "all"):
-            if ok: do_build(data)
+            if ok:
+                do_build(data)
+                if a.cmd == "all": run_engine()
             else: print("Critical check failed: market.json not updated."); sys.exit(1)
         elif not ok: sys.exit(1)
