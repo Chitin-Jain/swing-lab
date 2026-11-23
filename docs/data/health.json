@@ -1,6 +1,6 @@
 {
  "as_of": "2026-11-20",
- "generated_at": "2026-11-23T13:29+05:30",
+ "generated_at": "2026-11-23T14:15+05:30",
  "overall": "PASS",
  "checks": [
   {
@@ -9,7 +9,12 @@
    "detail": "Latest data is for 2026-11-20 (3 days ago)"
   },
   {
-   "check": "No gaps longer than 5 days (last 60 sessions)",
+   "check": "No gaps longer than 7 days (last 90 days)",
+   "status": "Pass",
+   "detail": "None"
+  },
+  {
+   "check": "No gaps in older history (last 400 days)",
    "status": "Pass",
    "detail": "None"
   },
@@ -29,7 +34,7 @@
    "detail": "0 duplicates"
   },
   {
-   "check": "No zero, negative or missing prices (last 60 sessions)",
+   "check": "No zero, negative or missing prices (last 90 days)",
    "status": "Pass",
    "detail": "0 bad rows"
   },
