@@ -70,7 +70,9 @@ def load(last_files=None):
         sys.exit("No price data stored yet. Run the fetch step first.")
     if last_files:
         files = files[-last_files:]
-    return pd.concat(pd.read_csv(f) for f in files).sort_values(["SYMBOL", "DATE1"]).reset_index(drop=True)
+    df = pd.concat(pd.read_csv(f) for f in files)
+    df = df[df.DATE1 >= (date.fromisoformat(df.DATE1.max()) - timedelta(days=400)).isoformat()]
+    return df.sort_values(["SYMBOL", "DATE1"]).reset_index(drop=True)
 
 
 def do_fetch(start, end, src_dir=None):
@@ -103,11 +105,10 @@ def do_fetch(start, end, src_dir=None):
 def adjusted(df):
     """Adds ADJ (split/bonus-adjusted close) and flags corporate-action days using PREV_CLOSE."""
     df = df.sort_values(["SYMBOL", "DATE1"]).copy()
-    sess = {d: i for i, d in enumerate(sorted(df.DATE1.unique()))}
-    df["S"] = df.DATE1.map(sess)
+    df["D"] = pd.to_datetime(df.DATE1)
     g = df.groupby("SYMBOL")
     ratio = df.PREV_CLOSE / g.CLOSE_PRICE.shift(1)
-    consecutive = (df.S - g.S.shift(1)) == 1
+    consecutive = (df.D - g.D.shift(1)).dt.days <= 5
     df["CA"] = (consecutive & ((ratio - 1).abs() > CFG["ca_threshold"])).fillna(False)
     f = ratio.where(df.CA, 1.0).fillna(1.0)
     rev = f.groupby(df.SYMBOL).transform(lambda s: s[::-1].cumprod()[::-1])
@@ -122,9 +123,12 @@ def do_check(df):
     sessions = sorted(df.DATE1.unique()); last = sessions[-1]
     age = (datetime.now(IST).date() - date.fromisoformat(last)).days
     add("Latest price date is recent", age <= 4, f"Latest data is for {last} ({age} days ago)")
-    recent = sessions[-60:]
-    gaps = [f"{a} to {b}" for a, b in zip(recent, recent[1:]) if (date.fromisoformat(b) - date.fromisoformat(a)).days > 5]
-    add("No gaps longer than 5 days (last 60 sessions)", not gaps, "None" if not gaps else "; ".join(gaps))
+    recent = [x for x in sessions if x >= (date.fromisoformat(last) - timedelta(days=90)).isoformat()]
+    gp = lambda ss: [f"{a} to {b}" for a, b in zip(ss, ss[1:]) if (date.fromisoformat(b) - date.fromisoformat(a)).days > 7]
+    g1 = gp(recent)
+    add("No gaps longer than 7 days (last 90 days)", not g1, "None" if not g1 else "; ".join(g1))
+    g2 = [x for x in gp(sessions) if x not in g1]
+    add("No gaps in older history (last 400 days)", not g2, "None" if not g2 else "; ".join(g2[:5]) + " (fills in as you load more years)", critical=False)
     w = df[df.DATE1.isin(recent)]
     cnt = w.groupby("DATE1").size()
     if len(cnt) > 5:
@@ -134,7 +138,7 @@ def do_check(df):
     n = int(df.duplicated(["DATE1", "SYMBOL"]).sum())
     add("No duplicate rows", n == 0, f"{n} duplicates")
     bad = w[(w.CLOSE_PRICE <= 0) | (w.OPEN_PRICE <= 0) | w.CLOSE_PRICE.isna() | w.HIGH_PRICE.isna() | w.LOW_PRICE.isna()]
-    add("No zero, negative or missing prices (last 60 sessions)", bad.empty, f"{len(bad)} bad rows" + ("" if bad.empty else ": " + ", ".join(bad.SYMBOL.unique()[:8])))
+    add("No zero, negative or missing prices (last 90 days)", bad.empty, f"{len(bad)} bad rows" + ("" if bad.empty else ": " + ", ".join(bad.SYMBOL.unique()[:8])))
     inc = w[(w.HIGH_PRICE < w.LOW_PRICE) | (w.CLOSE_PRICE > w.HIGH_PRICE * 1.001) | (w.CLOSE_PRICE < w.LOW_PRICE * 0.999)]
     add("Close lies between day low and high", inc.empty, f"{len(inc)} rows to review", critical=False)
     day = df[df.DATE1 == last]
@@ -171,6 +175,7 @@ def do_build(df):
             c = [s for s in sessions if s <= (date.fromisoformat(last) - timedelta(days=days)).isoformat()]
             if not c: continue
             base = c[-1]
+            if (date.fromisoformat(last) - timedelta(days=days) - date.fromisoformat(base)).days > 10: continue
         b = L[L.DATE1 == base].set_index("SYMBOL").ADJ
         pct = ((latest.ADJ / b.reindex(latest.index) - 1) * 100).dropna()
         rows = lambda s: [{"symbol": k, "close": round(float(latest.CLOSE_PRICE[k]), 2), "change_pct": round(float(v), 2),
