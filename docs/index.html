@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swing Lab – NSE equity dashboard</title>
+<style>
+:root{--bg:#eef1f4;--sf:#fff;--ink:#16202e;--mut:#5d6b7c;--ln:#d5dbe2;--up:#0b7a62;--dn:#b8421a;--ac:#27408b;--wn:#8a6100;--info:#e4ebf8;--infot:#1f3568;--bad:#fbe3dc;--badt:#7a2410;--warn:#fff1c9;--warnt:#6b4a00}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#0f1620;--sf:#18222f;--ink:#e6ebf1;--mut:#94a1b1;--ln:#2a3646;--up:#3cc6a3;--dn:#f08a62;--ac:#8fa8ee;--wn:#e3b341;--info:#1c2a47;--infot:#b9c8f2;--bad:#4a2118;--badt:#f6b8a5;--warn:#3a2f10;--warnt:#f3d47a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1150px;margin:0 auto;padding:16px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+h1{font-size:22px;margin:0 0 2px;font-weight:600}h2{font-size:16px;margin:0 0 10px;font-weight:600}header p{margin:0;color:var(--mut)}
+.note{padding:10px 14px;border-radius:6px;margin:12px 0;font-size:13px;background:var(--info);color:var(--infot)}
+.note.bad{background:var(--bad);color:var(--badt)}.note.warn{background:var(--warn);color:var(--warnt)}
+nav{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--ln);margin-bottom:16px}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font:inherit;color:var(--mut);cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--ink);border-color:var(--ac);font-weight:600}
+button:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.box{background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:14px;margin-bottom:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chip{border:1px solid var(--ln);background:var(--sf);border-radius:6px;padding:8px 12px;cursor:pointer;font:inherit;color:var(--ink)}
+.chip.on{border-color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac)}
+.chip:disabled{opacity:.45;cursor:not-allowed}
+.cfg{display:flex;gap:18px;flex-wrap:wrap;color:var(--mut);font-size:12px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{border-left:3px solid var(--ln);padding:2px 10px}.kpi b{display:block;font-size:20px;font-weight:600}.kpi span{color:var(--mut);font-size:12px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%}
+th,td{padding:7px 9px;text-align:right;border-bottom:1px solid var(--ln);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}th{color:var(--mut);font-weight:500;font-size:12px}
+td.l,th.l{text-align:left;white-space:normal}
+.up{color:var(--up)}.dn{color:var(--dn)}.wn{color:var(--wn)}.mu{color:var(--mut)}
+p.s{color:var(--mut);margin:0 0 8px}ul{margin:6px 0 0;padding-left:20px}
+footer{color:var(--mut);font-size:12px;padding:8px 0 24px}
+</style></head><body><div class="wrap">
+<header><h1>Swing Lab</h1><p>Weekly and monthly technique tester for NSE equity (EQ series) stocks</p></header>
+<div id="status"></div>
+<nav id="nav"></nav><main id="main"><div class="box">Loading data…</div></main>
+<footer>Research output, not investment advice. Figures come from NSE end-of-day files. Backtests show how a rule behaved in the past and do not guarantee future results.</footer>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const num=(n,d=1)=>Number(n).toLocaleString("en-IN",{minimumFractionDigits:d,maximumFractionDigits:d});
+const pct=n=>(n>=0?"+":"")+num(n,2)+"%";
+const cls=n=>n>=0?"up":"dn";
+const dt=s=>{const d=new Date(s+"T00:00:00");return isNaN(d)?esc(s):d.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})};
+const PL={"1D":"Latest session","1W":"1 week","1M":"1 month","3M":"3 months","1Y":"1 year"};
+let M=null,H=null,problems=[],tab="mkt",per="1D";
+
+async function getJSON(p){
+  const r=await fetch(p+"?t="+Date.now());
+  if(!r.ok)throw new Error(p+" returned HTTP "+r.status);
+  return r.json();
+}
+async function load(){
+  const [m,h]=await Promise.allSettled([getJSON("data/market.json"),getJSON("data/health.json")]);
+  if(m.status=="fulfilled")M=m.value;else problems.push("Market data not found. Run the Daily update in GitHub Actions, then reload. ("+m.reason.message+")");
+  if(h.status=="fulfilled")H=h.value;else problems.push("Health report not found. ("+h.reason.message+")");
+  if(M&&!(M.periods&&M.periods[per])){const k=Object.keys(PL).find(x=>M.periods&&M.periods[x]);if(k)per=k}
+  render();
+}
+function status(){
+  let h="";
+  problems.forEach(p=>h+=`<div class="note bad">${esc(p)}</div>`);
+  if(H&&H.overall=="FAIL")h+=`<div class="note bad"><b>Data checks failed.</b> New numbers were not published. What you see below is from the last good update (${dt(M?M.as_of:H.as_of)}). Open the Data health tab for details.</div>`;
+  if(M){
+    const age=Math.floor((Date.now()-new Date(M.as_of+"T00:00:00"))/864e5);
+    if(age>4)h+=`<div class="note warn"><b>Data is ${age} days old.</b> The daily update may have failed. Check the Actions tab in GitHub.</div>`;
+  }
+  $("status").innerHTML=h;
+}
+function nav(){
+  const T=[["mkt","Market overview"],["health","Data health"],["tech","Techniques"]];
+  $("nav").innerHTML=T.map(([k,l])=>`<button data-k="${k}" class="${k==tab?"on":""}">${l}</button>`).join("");
+}
+function kpi(v,l,c=""){return `<div class="kpi"><b class="${c}">${v}</b><span>${l}</span></div>`}
+function tbl(rows){
+  if(!rows||!rows.length)return `<p class="mu">No stocks to show.</p>`;
+  return `<div class="sc"><table><thead><tr><th>Stock</th><th>Close (₹)</th><th>Change</th><th>Traded (₹ cr)</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.symbol)}</td><td>${num(r.close,2)}</td><td class="${cls(r.change_pct)}">${pct(r.change_pct)}</td><td>${num(r.traded_cr,1)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+function mkt(){
+  if(!M)return `<div class="box"><h2>No market data yet</h2><p class="s">The page needs docs/data/market.json. Run the Daily update in GitHub Actions and wait for a green tick, then reload this page.</p></div>`;
+  const P=M.periods[per];
+  const chips=Object.keys(PL).map(k=>{const ok=!!M.periods[k];return `<button class="chip ${k==per?"on":""}" data-p="${k}" ${ok?"":'disabled title="Needs more stored history"'}>${PL[k]}</button>`}).join("");
+  const missing=Object.keys(PL).filter(k=>!M.periods[k]);
+  return `<div class="box"><div class="chips">${chips}</div>
+   <div class="cfg"><span>Data as of: <b>${dt(M.as_of)}</b></span><span>Source: ${esc(M.source)}</span><span>Universe: EQ series, average daily value above ₹${num(M.min_daily_value_cr,0)} cr</span><span>Updated: ${esc(M.generated_at.replace("T"," "))} IST</span></div>
+   ${missing.length?`<p class="s" style="margin:8px 0 0">Greyed-out periods need more stored history. They appear as the history grows.</p>`:""}</div>
+  <div class="box"><h2>Market snapshot</h2><div class="kpis">
+   ${kpi(num(P.advances,0)+" up / "+num(P.declines,0)+" down","Stocks, compared with "+dt(P.from))}
+   ${kpi(num(M.liquid_universe,0),"Stocks passing the liquidity filter")}
+   ${kpi(num(M.closing_52w_highs,0),"At a 52-week closing high")}
+   ${kpi(num(M.closing_52w_lows,0),"At a 52-week closing low")}
+   ${kpi("₹"+num(M.total_traded_value_cr,0)+" cr","Total traded value, latest session")}
+  </div></div>
+  <div class="two"><div class="box"><h2>Top 10 gainers</h2>${tbl(P.gainers)}</div><div class="box"><h2>Top 10 losers</h2>${tbl(P.losers)}</div></div>
+  <div class="box"><p class="s" style="margin:0"><b>Not available yet:</b> Nifty 50, Sensex and Nifty 500 index levels, India VIX, FII and DII flows, sector performance and custom date ranges. These need extra data sources or longer history. Nothing is estimated in their place. Prices are adjusted for splits and bonus issues, but not for dividends.</p></div>`;
+}
+function health(){
+  if(!H)return `<div class="box"><h2>No health report yet</h2><p class="s">The page needs docs/data/health.json, which the Daily update creates.</p></div>`;
+  const c=s=>s=="Pass"?"up":s=="Fail"?"dn":s=="Warn"?"wn":"mu";
+  return `<div class="box"><h2>Data health: <span class="${H.overall=="PASS"?"up":"dn"}">${esc(H.overall)}</span></h2>
+   <p class="s">Data as of <b>${dt(H.as_of)}</b>. Checked ${esc(H.generated_at.replace("T"," "))} IST. If a critical check fails, new numbers are not published that day.</p>
+   <div class="sc"><table><thead><tr><th>Check</th><th>Status</th><th class="l">Detail</th></tr></thead><tbody>${H.checks.map(r=>`<tr><td class="l">${esc(r.check)}</td><td class="${c(r.status)}">${esc(r.status)}</td><td class="l">${esc(r.detail)}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+function tech(){
+  return `<div class="box"><h2>Techniques are not built yet</h2><p class="s">Nothing is shown here until real results exist. The next build step adds:</p>
+   <ul><li>Momentum, 52-week-high breakout and 50/200 DMA crossover, each as a separate technique.</li><li>A paper-trading engine with 1% risk per trade, costs and slippage included.</li><li>Today's signals, open and closed paper trades, and a leaderboard ranking techniques by risk-adjusted return.</li></ul></div>`;
+}
+function render(){
+  status();nav();
+  $("main").innerHTML=({mkt,health,tech})[tab]();
+}
+$("nav").onclick=e=>{const b=e.target.closest("[data-k]");if(b){tab=b.dataset.k;render()}};
+$("main").onclick=e=>{const b=e.target.closest("[data-p]");if(b&&!b.disabled){per=b.dataset.p;render()}};
+load();
+</script></body></html>
