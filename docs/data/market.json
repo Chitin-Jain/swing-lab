@@ -1,17 +1,17 @@
 {
  "as_of": "2026-11-23",
  "source": "NSE daily price file (EQ series)",
- "generated_at": "2026-11-23T17:02+05:30",
- "liquid_universe": 1286,
+ "generated_at": "2026-11-23T17:08+05:30",
+ "liquid_universe": 1208,
  "min_daily_value_cr": 5,
- "total_traded_value_cr": 126338.4,
- "closing_52w_highs": 45,
- "closing_52w_lows": 33,
+ "total_traded_value_cr": 119280.3,
+ "closing_52w_highs": 35,
+ "closing_52w_lows": 30,
  "periods": {
   "1D": {
    "from": "2026-11-20",
-   "advances": 343,
-   "declines": 926,
+   "advances": 311,
+   "declines": 886,
    "gainers": [
     {
      "symbol": "PERMAGN",
@@ -139,8 +139,8 @@
   },
   "1W": {
    "from": "2026-11-16",
-   "advances": 453,
-   "declines": 814,
+   "advances": 421,
+   "declines": 775,
    "gainers": [
     {
      "symbol": "HMAAGRO",
@@ -268,8 +268,8 @@
   },
   "1M": {
    "from": "2026-10-23",
-   "advances": 879,
-   "declines": 369,
+   "advances": 838,
+   "declines": 342,
    "gainers": [
     {
      "symbol": "HMAAGRO",
@@ -397,8 +397,8 @@
   },
   "3M": {
    "from": "2026-08-25",
-   "advances": 424,
-   "declines": 773,
+   "advances": 395,
+   "declines": 735,
    "gainers": [
     {
      "symbol": "CCAVENUE",
@@ -526,8 +526,8 @@
   },
   "1Y": {
    "from": "2025-11-21",
-   "advances": 556,
-   "declines": 545,
+   "advances": 509,
+   "declines": 532,
    "gainers": [
     {
      "symbol": "CUPID",

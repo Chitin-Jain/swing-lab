@@ -159,6 +159,10 @@ def adjusted(df):
     df["CA"] = by_prev | by_snap
     rev = f.groupby(df.SYMBOL).transform(lambda s: s[::-1].cumprod()[::-1])
     df["ADJ"] = df.CLOSE_PRICE * (rev / f)
+    from universe import is_etf
+    etf = {x: is_etf(x) for x in df.SYMBOL.unique()}
+    df = df[~df.SYMBOL.map(etf)]   # ETFs / index funds are not stocks: left out of every signal and table
+    df.attrs["etfs_excluded"] = int(sum(etf.values()))
     return df
 
 

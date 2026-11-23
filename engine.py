@@ -4,9 +4,9 @@ import json, os
 from datetime import date, datetime, timedelta, timezone
 import numpy as np
 import pandas as pd
-import tech_momentum, tech_breakout52, tech_dma_cross, tech_swing_range
+import tech_momentum, tech_breakout52, tech_dma_cross, tech_swing_range, tech_rsi2, tech_downstreak
 
-TECHS = [tech_momentum, tech_breakout52, tech_dma_cross, tech_swing_range]
+TECHS = [tech_momentum, tech_breakout52, tech_dma_cross, tech_swing_range, tech_rsi2, tech_downstreak]
 IST = timezone(timedelta(hours=5, minutes=30))
 DEFAULTS = dict(capital=500000, risk_pct=1.0, max_positions=10, max_position_pct=15.0,
                 cost_per_side_pct=0.13, slippage_per_side_pct=0.10, min_daily_value_cr=5,
