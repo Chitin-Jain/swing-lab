@@ -1,0 +1,270 @@
+{
+ "as_of": "2026-11-20",
+ "source": "NSE daily price file (EQ series)",
+ "generated_at": "2026-11-23T13:11+05:30",
+ "liquid_universe": 1290,
+ "min_daily_value_cr": 5,
+ "total_traded_value_cr": 135092.6,
+ "closing_52w_highs": 174,
+ "closing_52w_lows": 158,
+ "periods": {
+  "1D": {
+   "from": "2026-11-19",
+   "advances": 481,
+   "declines": 792,
+   "gainers": [
+    {
+     "symbol": "OAL",
+     "close": 516.7,
+     "change_pct": 20.0,
+     "traded_cr": 260.5
+    },
+    {
+     "symbol": "HMAAGRO",
+     "close": 33.91,
+     "change_pct": 15.58,
+     "traded_cr": 373.3
+    },
+    {
+     "symbol": "JLHL",
+     "close": 317.4,
+     "change_pct": 12.87,
+     "traded_cr": 594.7
+    },
+    {
+     "symbol": "AJMERA",
+     "close": 149.29,
+     "change_pct": 11.84,
+     "traded_cr": 97.1
+    },
+    {
+     "symbol": "SIGACHI",
+     "close": 30.57,
+     "change_pct": 10.92,
+     "traded_cr": 46.9
+    },
+    {
+     "symbol": "UGROCAP",
+     "close": 80.72,
+     "change_pct": 9.6,
+     "traded_cr": 690.9
+    },
+    {
+     "symbol": "INDUSINDBK",
+     "close": 1003.0,
+     "change_pct": 8.59,
+     "traded_cr": 1879.1
+    },
+    {
+     "symbol": "SGMART",
+     "close": 1097.05,
+     "change_pct": 8.57,
+     "traded_cr": 200.8
+    },
+    {
+     "symbol": "EIHOTEL",
+     "close": 334.15,
+     "change_pct": 7.79,
+     "traded_cr": 169.0
+    },
+    {
+     "symbol": "GNRL",
+     "close": 11.98,
+     "change_pct": 6.68,
+     "traded_cr": 9.7
+    }
+   ],
+   "losers": [
+    {
+     "symbol": "SMLMAH",
+     "close": 4989.4,
+     "change_pct": -12.12,
+     "traded_cr": 88.2
+    },
+    {
+     "symbol": "EBGNG",
+     "close": 470.35,
+     "change_pct": -8.75,
+     "traded_cr": 69.2
+    },
+    {
+     "symbol": "AEROENTER",
+     "close": 126.21,
+     "change_pct": -7.95,
+     "traded_cr": 14.7
+    },
+    {
+     "symbol": "AYE",
+     "close": 139.25,
+     "change_pct": -7.73,
+     "traded_cr": 13.4
+    },
+    {
+     "symbol": "QUADFUTURE",
+     "close": 393.5,
+     "change_pct": -7.63,
+     "traded_cr": 17.2
+    },
+    {
+     "symbol": "VISHNU",
+     "close": 511.35,
+     "change_pct": -7.6,
+     "traded_cr": 48.1
+    },
+    {
+     "symbol": "SHANTIGOLD",
+     "close": 227.2,
+     "change_pct": -7.0,
+     "traded_cr": 40.1
+    },
+    {
+     "symbol": "AMANTA",
+     "close": 222.37,
+     "change_pct": -6.99,
+     "traded_cr": 4.4
+    },
+    {
+     "symbol": "IIFLCAPS",
+     "close": 311.45,
+     "change_pct": -6.6,
+     "traded_cr": 121.1
+    },
+    {
+     "symbol": "DEEDEV",
+     "close": 513.7,
+     "change_pct": -6.45,
+     "traded_cr": 18.6
+    }
+   ]
+  },
+  "1W": {
+   "from": "2026-11-13",
+   "advances": 453,
+   "declines": 818,
+   "gainers": [
+    {
+     "symbol": "HMAAGRO",
+     "close": 33.91,
+     "change_pct": 23.76,
+     "traded_cr": 373.3
+    },
+    {
+     "symbol": "UGROCAP",
+     "close": 80.72,
+     "change_pct": 22.82,
+     "traded_cr": 690.9
+    },
+    {
+     "symbol": "KMCSHIL",
+     "close": 203.78,
+     "change_pct": 21.38,
+     "traded_cr": 28.7
+    },
+    {
+     "symbol": "GREAVESCOT",
+     "close": 268.31,
+     "change_pct": 18.74,
+     "traded_cr": 461.0
+    },
+    {
+     "symbol": "VEEFIN",
+     "close": 301.56,
+     "change_pct": 18.44,
+     "traded_cr": 17.0
+    },
+    {
+     "symbol": "TTKHLTCARE",
+     "close": 1110.15,
+     "change_pct": 18.3,
+     "traded_cr": 37.7
+    },
+    {
+     "symbol": "SGFIN",
+     "close": 821.05,
+     "change_pct": 17.58,
+     "traded_cr": 43.2
+    },
+    {
+     "symbol": "SGMART",
+     "close": 1097.05,
+     "change_pct": 16.53,
+     "traded_cr": 200.8
+    },
+    {
+     "symbol": "SUNSHINE",
+     "close": 512.4,
+     "change_pct": 16.3,
+     "traded_cr": 15.3
+    },
+    {
+     "symbol": "MAXHEALTH",
+     "close": 1081.0,
+     "change_pct": 14.14,
+     "traded_cr": 1028.0
+    }
+   ],
+   "losers": [
+    {
+     "symbol": "DCAL",
+     "close": 115.57,
+     "change_pct": -33.17,
+     "traded_cr": 9.3
+    },
+    {
+     "symbol": "SHRINGARMS",
+     "close": 236.25,
+     "change_pct": -23.26,
+     "traded_cr": 64.0
+    },
+    {
+     "symbol": "PASHUPATI",
+     "close": 27.18,
+     "change_pct": -22.56,
+     "traded_cr": 15.9
+    },
+    {
+     "symbol": "EBGNG",
+     "close": 470.35,
+     "change_pct": -18.51,
+     "traded_cr": 69.2
+    },
+    {
+     "symbol": "INNOVACAP",
+     "close": 977.8,
+     "change_pct": -16.6,
+     "traded_cr": 6.1
+    },
+    {
+     "symbol": "MSTCLTD",
+     "close": 656.55,
+     "change_pct": -16.19,
+     "traded_cr": 16.8
+    },
+    {
+     "symbol": "MENONBE",
+     "close": 307.15,
+     "change_pct": -16.15,
+     "traded_cr": 9.7
+    },
+    {
+     "symbol": "FCL",
+     "close": 44.82,
+     "change_pct": -15.7,
+     "traded_cr": 37.8
+    },
+    {
+     "symbol": "IZMO",
+     "close": 743.85,
+     "change_pct": -15.54,
+     "traded_cr": 6.0
+    },
+    {
+     "symbol": "JAYKAY",
+     "close": 177.6,
+     "change_pct": -15.31,
+     "traded_cr": 2.1
+    }
+   ]
+  }
+ }
+}

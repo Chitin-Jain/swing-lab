@@ -1,0 +1,57 @@
+{
+ "as_of": "2026-11-20",
+ "generated_at": "2026-11-23T13:11+05:30",
+ "overall": "PASS",
+ "checks": [
+  {
+   "check": "Latest price date is recent",
+   "status": "Pass",
+   "detail": "Latest data is for 2026-11-20 (3 days ago)"
+  },
+  {
+   "check": "No gaps longer than 5 days (last 60 sessions)",
+   "status": "Pass",
+   "detail": "None"
+  },
+  {
+   "check": "Stock count on latest day is normal",
+   "status": "Pass",
+   "detail": "2760 stocks against a typical 2743"
+  },
+  {
+   "check": "Only EQ series stocks included",
+   "status": "Pass",
+   "detail": "Series found: EQ"
+  },
+  {
+   "check": "No duplicate rows",
+   "status": "Pass",
+   "detail": "0 duplicates"
+  },
+  {
+   "check": "No zero, negative or missing prices (last 60 sessions)",
+   "status": "Pass",
+   "detail": "0 bad rows"
+  },
+  {
+   "check": "Close lies between day low and high",
+   "status": "Pass",
+   "detail": "0 rows to review"
+  },
+  {
+   "check": "No unexplained one-day moves above 25% on latest day",
+   "status": "Pass",
+   "detail": "None"
+  },
+  {
+   "check": "Corporate actions detected and auto-adjusted today",
+   "status": "Pass",
+   "detail": "None today"
+  },
+  {
+   "check": "Closing prices match a second source",
+   "status": "Pending",
+   "detail": "Needs a second data source. Planned for a later phase."
+  }
+ ]
+}
