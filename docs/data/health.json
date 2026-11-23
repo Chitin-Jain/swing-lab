@@ -1,12 +1,12 @@
 {
- "as_of": "2026-11-20",
- "generated_at": "2026-11-23T16:58+05:30",
+ "as_of": "2026-11-23",
+ "generated_at": "2026-11-23T17:02+05:30",
  "overall": "PASS",
  "checks": [
   {
    "check": "Latest price date is recent",
    "status": "Pass",
-   "detail": "Latest data is for 2026-11-20 (3 days ago)"
+   "detail": "Latest data is for 2026-11-23 (0 days ago)"
   },
   {
    "check": "No gaps longer than 7 days (last 90 days)",
@@ -21,7 +21,7 @@
   {
    "check": "Stock count on latest day is normal",
    "status": "Pass",
-   "detail": "2760 stocks against a typical 2678"
+   "detail": "2773 stocks against a typical 2678"
   },
   {
    "check": "Only EQ series stocks included",
