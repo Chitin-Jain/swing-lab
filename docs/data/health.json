@@ -1,12 +1,12 @@
 {
- "as_of": "2026-11-26",
- "generated_at": "2026-11-26T20:59+05:30",
+ "as_of": "2026-11-27",
+ "generated_at": "2026-11-27T20:57+05:30",
  "overall": "PASS",
  "checks": [
   {
    "check": "Latest price date is recent",
    "status": "Pass",
-   "detail": "Latest data is for 2026-11-26 (0 days ago)"
+   "detail": "Latest data is for 2026-11-27 (0 days ago)"
   },
   {
    "check": "No gaps longer than 7 days (last 90 days)",
@@ -21,7 +21,7 @@
   {
    "check": "Stock count on latest day is normal",
    "status": "Pass",
-   "detail": "2782 stocks against a typical 2687"
+   "detail": "2783 stocks against a typical 2689"
   },
   {
    "check": "Only EQ series stocks included",
@@ -45,13 +45,13 @@
   },
   {
    "check": "No unexplained one-day moves above 25% on latest day",
-   "status": "Pass",
-   "detail": "None"
+   "status": "Warn",
+   "detail": "Review: VGL"
   },
   {
    "check": "Corporate actions detected and auto-adjusted today",
    "status": "Pass",
-   "detail": "None today"
+   "detail": "1 stocks: VGL"
   },
   {
    "check": "No unexplained one-day moves above 40% after split adjustment (last 400 days)",
